@@ -35,6 +35,22 @@ class VideoPlayer extends React.Component {
     this.setState(newState)
   }
 
+  onEditClip = (index, clip) => {
+    const { clips, activeClip } = this.state
+
+    const newClips = [...clips.slice(0, index), clip, ...clips.slice(index + 1)]
+
+    const newState = { clips: newClips }
+
+    // If the active video is edited, then reassignit
+    // to state in order to change start and end marks
+    if (clip.id === activeClip.id) {
+      newState.activeClip = clip
+    }
+
+    this.setState(newState)
+  }
+
   onClipChange = activeClip => {
     this.setState({ activeClip })
   }
@@ -79,6 +95,7 @@ class VideoPlayer extends React.Component {
           activeClip={activeClip}
           onAddClip={this.onAddClip}
           onRemoveClip={this.onRemoveClip}
+          onEditClip={this.onEditClip}
           onClipChange={this.onClipChange}
         />
       </Container>

@@ -31,6 +31,7 @@ const Playlist = ({
   activeClip,
   onAddClip,
   onRemoveClip,
+  onEditClip,
   onClipChange
 }) => {
   const isOriginalVideoActive = activeClip.id === originalVideo.id
@@ -43,7 +44,7 @@ const Playlist = ({
           <Button>
             <FontAwesomeIcon icon={faFilter} color="#1d1f24" />
           </Button>
-          <NewClipModal onAddClip={onAddClip} maxDuration={videoDuration}>
+          <NewClipModal onSaveClip={onAddClip} maxDuration={videoDuration}>
             {({ openModal }) => (
               <Button onClick={() => openModal()}>
                 <FontAwesomeIcon icon={faPlus} color="#1d1f24" />
@@ -95,12 +96,19 @@ const Playlist = ({
                       color={active ? '#fff' : '#1d1f24'}
                     />
                   </Button>
-                  <Button>
-                    <FontAwesomeIcon
-                      icon={faPencilAlt}
-                      color={active ? '#fff' : '#1d1f24'}
-                    />
-                  </Button>
+                  <NewClipModal
+                    onSaveClip={savedClip => onEditClip(index, savedClip)}
+                    maxDuration={videoDuration}
+                  >
+                    {({ openModal }) => (
+                      <Button type="button" onClick={() => openModal(clip)}>
+                        <FontAwesomeIcon
+                          icon={faPencilAlt}
+                          color={active ? '#fff' : '#1d1f24'}
+                        />
+                      </Button>
+                    )}
+                  </NewClipModal>
                   <Button type="button" onClick={() => onRemoveClip(index)}>
                     <FontAwesomeIcon
                       icon={faTrashAlt}

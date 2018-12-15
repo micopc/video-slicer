@@ -18,6 +18,7 @@ import { generateRandomID } from '../../utils'
 class NewClipModal extends React.Component {
   state = {
     isModalOpen: false,
+    clipId: null,
     clipName: '',
     clipStartTime: '',
     clipStartTimeError: false,
@@ -26,8 +27,19 @@ class NewClipModal extends React.Component {
     addClipError: false
   }
 
-  openModal = () => {
-    this.setState({ isModalOpen: true })
+  openModal = clip => {
+    if (!clip) {
+      this.setState({ isModalOpen: true })
+      return
+    }
+
+    this.setState({
+      isModalOpen: true,
+      clipId: clip.id,
+      clipName: clip.name,
+      clipStartTime: clip.start,
+      clipEndTime: clip.end
+    })
   }
 
   closeModal = () => {
@@ -86,23 +98,26 @@ class NewClipModal extends React.Component {
   onClipFormSubmit = e => {
     e.preventDefault()
 
-    const { clipName, clipStartTime, clipEndTime } = this.state
+    const { clipId, clipName, clipStartTime, clipEndTime } = this.state
 
     if (Number(clipStartTime) >= Number(clipEndTime)) {
       this.setState({ addClipError: true })
       return
     }
 
+    console.log('clipId', clipId)
+
     const clip = {
-      id: generateRandomID(),
+      id: clipId || generateRandomID(),
       name: clipName,
       start: clipStartTime,
       end: clipEndTime
     }
 
-    this.props.onAddClip(clip)
+    this.props.onSaveClip(clip)
 
     this.setState({
+      clipId: null,
       clipName: '',
       clipStartTime: '',
       clipEndTime: '',
