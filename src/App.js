@@ -1,8 +1,9 @@
 import React from 'react'
 import Header from './components/header'
 import Footer from './components/footer'
-import { PageWrapper } from './components/globals'
+import { PageWrapper, GlobalStyles } from './components/globals'
 import VideoPlayer from './components/videoPlayer'
+
 class App extends React.Component {
   render() {
     return (
@@ -12,6 +13,7 @@ class App extends React.Component {
           <VideoPlayer />
         </PageWrapper>
         <Footer />
+        <GlobalStyles />
       </div>
     )
   }

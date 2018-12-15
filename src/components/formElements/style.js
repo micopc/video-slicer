@@ -6,7 +6,7 @@ export const Label = styled.label`
   color: #1d1f24;
   display: flex;
   flex-direction: column;
-  margin-bottom: 20px;
+  margin-bottom: 10px;
 `
 
 export const LabelText = styled.span`
