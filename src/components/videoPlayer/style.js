@@ -6,6 +6,26 @@ export const Container = styled.div`
   width: 100%;
 `
 
+export const NavigationContainer = styled.div`
+  display: flex;
+  padding: 10px 20px;
+  align-items: center;
+  justify-content: center;
+  background-color: #fff;
+
+  & p {
+    flex: 1;
+    margin: 0 0 5px 0;
+    opacity: 0.4;
+    font-size: 12px;
+    display: none;
+
+    @media (min-width: 576px) {
+      display: block;
+    }
+  }
+`
+
 export const VideoContainer = styled.div`
   position: relative;
   width: 100%;
@@ -82,6 +102,6 @@ export const Button = styled.button`
   box-shadow: none;
   -webkit-appearance: none;
   cursor: pointer;
-  font-size: 20px;
+  font-size: 14px;
   margin: 0 5px;
 `

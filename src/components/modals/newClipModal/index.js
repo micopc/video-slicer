@@ -93,7 +93,12 @@ class NewClipModal extends React.Component {
       tags: clipTags
     }
 
-    this.props.onSaveClip(this.props.clipIndex, clip)
+    if (clipId) {
+      this.props.onSaveClip(this.props.clipIndex, clip)
+    } else {
+      this.props.onSaveClip(clip)
+    }
+
     this.props.close()
   }
 

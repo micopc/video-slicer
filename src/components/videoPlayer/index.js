@@ -1,10 +1,17 @@
 import React from 'react'
 import Switch from 'react-switch'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faPlus, faFilter, faSpinner } from '@fortawesome/free-solid-svg-icons'
+import {
+  faArrowLeft,
+  faArrowRight,
+  faPlus,
+  faFilter,
+  faSpinner
+} from '@fortawesome/free-solid-svg-icons'
 import videoAsset from '../../assets/video.mp4'
 import {
   Container,
+  NavigationContainer,
   VideoContainer,
   Video,
   PlaylistContainer,
@@ -24,6 +31,8 @@ const ORIGINAL_VIDEO = {
   start: 0
 }
 
+const AUTOPLAY_DELAY = 3000
+
 class VideoPlayer extends React.Component {
   state = {
     clips: this.loadClips(),
@@ -35,6 +44,24 @@ class VideoPlayer extends React.Component {
   }
 
   videoEndReached = false
+  autoplayTimer = null
+
+  componentDidMount() {
+    document.addEventListener('keydown', e => {
+      switch (e.key) {
+        case 'Left':
+        case 'ArrowLeft':
+          this.onPrevClip()
+          break
+        case 'Right':
+        case 'ArrowRight':
+          this.onNextClip()
+          break
+        default:
+          return
+      }
+    })
+  }
 
   loadClips() {
     const storedClips = localStorage.getItem('clips')
@@ -48,6 +75,8 @@ class VideoPlayer extends React.Component {
   saveClips(clips) {
     localStorage.setItem('clips', JSON.stringify(clips))
   }
+
+  onAutoPlayChange = autoPlay => this.setState({ autoPlay })
 
   onAddClip = clip => {
     const newClips = [...this.state.clips, clip]
@@ -123,7 +152,7 @@ class VideoPlayer extends React.Component {
       this.videoEndReached = true
 
       if (this.state.autoPlay) {
-        this.playNextVideo()
+        this.playNextClip()
       }
     }
   }
@@ -132,29 +161,75 @@ class VideoPlayer extends React.Component {
     this.videoEndReached = true
 
     if (this.state.autoPlay) {
-      this.playNextVideo()
+      this.playNextClip()
     }
   }
 
-  playNextVideo = () => {
+  onNextClip = () => {
+    const clip = this.getNextClip()
+
+    // If the next video is currently being loaded, stop it
+    this.autoplayTimer && clearTimeout(this.autoplayTimer)
+
+    this.setState({ activeClip: clip, loading: false })
+  }
+
+  onPrevClip = () => {
+    const clip = this.getPrevClip()
+
+    // If the next video is currently being loaded, stop it
+    this.autoplayTimer && clearTimeout(this.autoplayTimer)
+
+    this.setState({ activeClip: clip, loading: false })
+  }
+
+  getPrevClip = () => {
+    const { activeClip, clips } = this.state
+
+    if (clips.length === 0) {
+      return ORIGINAL_VIDEO
+    }
+
+    const activeIndex = clips.findIndex(clip => clip.id === activeClip.id)
+
+    if (activeIndex === -1) {
+      return clips[clips.length - 1]
+    }
+
+    if (activeIndex === 0) {
+      return ORIGINAL_VIDEO
+    }
+
+    return clips[activeIndex - 1]
+  }
+
+  getNextClip = () => {
+    const { activeClip, clips } = this.state
+
+    if (clips.length === 0) {
+      return ORIGINAL_VIDEO
+    }
+
+    const activeIndex = clips.findIndex(clip => clip.id === activeClip.id)
+
+    if (activeIndex === -1) {
+      return clips[0]
+    }
+
+    if (activeIndex === clips.length - 1) {
+      return ORIGINAL_VIDEO
+    }
+
+    return clips[activeIndex + 1]
+  }
+
+  playNextClip = () => {
     this.setState({ loading: true }, () => {
-      setTimeout(() => {
-        const { activeClip, clips } = this.state
+      this.autoplayTimer = setTimeout(() => {
+        const clip = this.getNextClip()
 
-        const activeIndex = clips.findIndex(clip => clip.id === activeClip.id)
-
-        if (activeIndex === clips.length - 1) {
-          this.setState({ loading: false, activeClip: ORIGINAL_VIDEO })
-          return
-        }
-
-        if (activeIndex === -1) {
-          this.setState({ loading: false, activeClip: clips[0] })
-          return
-        }
-
-        this.setState({ loading: false, activeClip: clips[clips.length - 1] })
-      }, 5000)
+        this.setState({ loading: false, activeClip: clip })
+      }, AUTOPLAY_DELAY)
     })
   }
 
@@ -190,8 +265,6 @@ class VideoPlayer extends React.Component {
     return Array.from(tags)
   }
 
-  onAutoPlayChange = autoPlay => this.setState({ autoPlay })
-
   render() {
     const {
       clips,
@@ -223,6 +296,24 @@ class VideoPlayer extends React.Component {
       <Modal>
         {({ openModal }) => (
           <Container>
+            <NavigationContainer>
+              <p>
+                You can also navigate between next and previous clips with your
+                keyboard arrows
+              </p>
+              <Button onClick={this.onPrevClip}>
+                <FontAwesomeIcon icon={faArrowLeft} color="#1d1f24" size="xs" />{' '}
+                prev
+              </Button>
+              <Button onClick={this.onNextClip}>
+                next{' '}
+                <FontAwesomeIcon
+                  icon={faArrowRight}
+                  color="#1d1f24"
+                  size="xs"
+                />
+              </Button>
+            </NavigationContainer>
             <VideoContainer>
               <Video
                 key={videoSrc}
@@ -264,6 +355,7 @@ class VideoPlayer extends React.Component {
                     <FontAwesomeIcon
                       icon={faFilter}
                       color={isFiltering ? '#1d1f24' : '#ff565c'}
+                      size="2x"
                     />
                   </Button>
                   <Button
@@ -274,7 +366,7 @@ class VideoPlayer extends React.Component {
                       })
                     }
                   >
-                    <FontAwesomeIcon icon={faPlus} color="#1d1f24" />
+                    <FontAwesomeIcon icon={faPlus} color="#1d1f24" size="2x" />
                   </Button>
                 </PlaylistHeaderBar>
                 <PlaylistAutoplay>
