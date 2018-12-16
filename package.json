@@ -10,6 +10,8 @@
     "react-dom": "^16.6.3",
     "react-modal": "^3.7.1",
     "react-scripts": "2.1.1",
+    "react-select": "^2.1.2",
+    "react-switch": "^3.0.4",
     "styled-components": "^4.1.2"
   },
   "scripts": {

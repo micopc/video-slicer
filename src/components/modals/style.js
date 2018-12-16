@@ -29,11 +29,11 @@ export const modalStyles = {
   }
 }
 
-export const Container = styled.div`
+export const ModalContainer = styled.div`
   padding: 2rem;
 `
 
-export const Header = styled.div`
+export const ModalHeader = styled.div`
   display: flex;
   justify-content: flex-end;
   padding: 10px 15px 5px;
@@ -50,39 +50,4 @@ export const CloseButton = styled.button`
   cursor: pointer;
   padding: 5px;
   font-size: 18px;
-`
-
-export const ClipForm = styled.form`
-  padding: 20px;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-`
-
-export const Instructions = styled.p`
-  color: #1d1f24;
-  margin: 0 0 20px;
-`
-
-export const ClipFormButton = styled.button`
-  padding: 5px;
-  background-color: transparent;
-  color: #ff565c;
-  border: 0;
-  box-shadow: none;
-  -webkit-appearance: none;
-  cursor: pointer;
-  font-family: 'Oswald', sans-serif;
-  font-size: 16px;
-
-  &:disabled {
-    opacity: 0.4;
-  }
-`
-
-export const Error = styled.span`
-  font-size: 12px;
-  color: #ff565c;
-  margin-bottom: 10px;
-  align-self: flex-start;
 `

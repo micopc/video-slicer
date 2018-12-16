@@ -1,21 +1,14 @@
 import styled from 'styled-components'
 
 export const Container = styled.div`
-  background-color: #fff;
-  border: 1px solid #ebebeb;
-  margin-top: 10px;
-`
-
-export const Header = styled.div`
+  width: 100%;
   display: flex;
-  padding: 20px;
-  justify-content: space-between;
-  border-bottom: 1px solid #ebebeb;
+  flex-direction: column;
+  height: 300px;
 `
 
 export const ClipList = styled.ul`
   overflow-y: auto;
-  height: 300px;
   margin: 0;
   padding: 0;
 `
@@ -23,6 +16,12 @@ export const ClipList = styled.ul`
 export const ClipItem = styled.li`
   padding: 10px 20px;
   ${props => props.active && 'background-color: #ff565c;'}
+`
+
+export const ClipLink = styled.a`
+  display: block;
+  flex: 1;
+  text-decoration: none;
 `
 
 export const ClipItemWrapper = styled.div`
@@ -49,6 +48,13 @@ export const ClipTime = styled.div`
   font-size: 12px;
   color: ${props => (props.active ? '#fff' : '#1d1f24')};
   opacity: 0.6;
+`
+
+export const ClipTags = styled.p`
+  font-size: 12px;
+  color: ${props => (props.active ? '#fff' : '#1d1f24')};
+  opacity: 0.6;
+  margin: 0;
 `
 
 export const ClipActions = styled.div`

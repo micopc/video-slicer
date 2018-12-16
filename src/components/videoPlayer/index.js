@@ -1,8 +1,21 @@
 import React from 'react'
+import Switch from 'react-switch'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import { faSpinner } from '@fortawesome/free-solid-svg-icons'
+import { faPlus, faFilter, faSpinner } from '@fortawesome/free-solid-svg-icons'
 import videoAsset from '../../assets/video.mp4'
-import { Container, VideoContainer, Video, LoadingOverlay } from './style'
+import {
+  Container,
+  VideoContainer,
+  Video,
+  PlaylistContainer,
+  PlaylistHeader,
+  PlaylistHeaderBar,
+  PlaylistAutoplay,
+  PlaylistTitle,
+  Button,
+  LoadingOverlay
+} from './style'
+import Modal from '../modals/modalRoot'
 import Playlist from './components/playlist'
 
 const ORIGINAL_VIDEO = {
@@ -17,18 +30,11 @@ class VideoPlayer extends React.Component {
     activeClip: ORIGINAL_VIDEO,
     videoDuration: 0,
     loading: false,
-    shouldAutoPlay: false
+    autoPlay: false,
+    filters: []
   }
 
   videoEndReached = false
-
-  componentDidMount() {
-    this.setAutoPlay()
-  }
-
-  setAutoPlay = () => {
-    this.setState({ shouldAutoPlay: true })
-  }
 
   loadClips() {
     const storedClips = localStorage.getItem('clips')
@@ -51,6 +57,10 @@ class VideoPlayer extends React.Component {
     this.setState({ clips: newClips })
   }
 
+  onApplyFilters = filters => {
+    this.setState({ filters })
+  }
+
   onRemoveClip = index => {
     const { clips, activeClip } = this.state
 
@@ -68,19 +78,23 @@ class VideoPlayer extends React.Component {
     this.setState(newState)
   }
 
-  onEditClip = (index, clip) => {
+  onEditClip = (clipIndex, newClip) => {
     const { clips, activeClip } = this.state
 
-    const newClips = [...clips.slice(0, index), clip, ...clips.slice(index + 1)]
+    const newClips = [
+      ...clips.slice(0, clipIndex),
+      newClip,
+      ...clips.slice(clipIndex + 1)
+    ]
 
     this.saveClips(newClips)
 
     const newState = { clips: newClips }
 
-    // If the active video is edited, then reassignit
+    // If the active video is edited, then reassign it
     // to state in order to change start and end marks
-    if (clip.id === activeClip.id) {
-      newState.activeClip = clip
+    if (newClip.id === activeClip.id) {
+      newState.activeClip = newClip
     }
 
     this.setState(newState)
@@ -95,7 +109,6 @@ class VideoPlayer extends React.Component {
   }
 
   onVideoPlay = e => {
-    console.log('play')
     this.videoEndReached = false
   }
 
@@ -104,20 +117,23 @@ class VideoPlayer extends React.Component {
   // A loading overlay is shown for 3 seconds and then the next video is played
   // It was necessary since the HTML5 video event "onEnded" only works for the whole video not fragments
   onVideoTimeUpdate = e => {
-    console.log('end', this.videoEndReached)
     const currentTime = Math.floor(e.target.currentTime)
 
     if (currentTime >= this.state.activeClip.end && !this.videoEndReached) {
       this.videoEndReached = true
 
-      this.playNextVideo()
+      if (this.state.autoPlay) {
+        this.playNextVideo()
+      }
     }
   }
 
   onVideoEnded = e => {
     this.videoEndReached = true
 
-    this.playNextVideo()
+    if (this.state.autoPlay) {
+      this.playNextVideo()
+    }
   }
 
   playNextVideo = () => {
@@ -156,50 +172,152 @@ class VideoPlayer extends React.Component {
     return `${videoAsset}#t=${activeClip.start},${activeClip.end}`
   }
 
+  getAllVideoTags = () => {
+    const { clips } = this.state
+
+    // Group all tags in a set in order to avoid duplicates
+    const tags = clips.reduce((accumulator, currentClip) => {
+      if (currentClip.tags) {
+        currentClip.tags.forEach(tag => {
+          accumulator.add(tag)
+        })
+      }
+
+      return accumulator
+    }, new Set())
+
+    // return tags as array for easier iteration
+    return Array.from(tags)
+  }
+
+  onAutoPlayChange = autoPlay => this.setState({ autoPlay })
+
   render() {
     const {
       clips,
       activeClip,
       videoDuration,
       loading,
-      shouldAutoPlay
+      autoPlay,
+      filters
     } = this.state
 
     const videoSrc = this.getVideoSrc()
 
+    const tags = this.getAllVideoTags()
+
+    const isFiltering = filters.length === 0
+
+    let filteredClips = []
+    if (isFiltering) {
+      filteredClips = clips
+    } else {
+      filteredClips = clips.filter(clip => {
+        return filters.some(
+          filter => clip.tags && clip.tags.some(tag => tag === filter)
+        )
+      })
+    }
+
     return (
-      <Container>
-        <VideoContainer>
-          <Video
-            key={videoSrc}
-            controls
-            autoPlay={shouldAutoPlay}
-            onPlay={this.onVideoPlay}
-            onDurationChange={this.onVideoDurationChange}
-            onTimeUpdate={this.onVideoTimeUpdate}
-            onEnded={this.onVideoEnded}
-          >
-            <source src={videoSrc} />
-            Sorry, your browser doesn't support embedded videos.
-          </Video>
-          {loading && (
-            <LoadingOverlay>
-              <FontAwesomeIcon icon={faSpinner} color="#fff" pulse size="3x" />
-              <p>The next clip will start soon</p>
-            </LoadingOverlay>
-          )}
-        </VideoContainer>
-        <Playlist
-          originalVideo={ORIGINAL_VIDEO}
-          videoDuration={videoDuration}
-          clips={clips}
-          activeClip={activeClip}
-          onAddClip={this.onAddClip}
-          onRemoveClip={this.onRemoveClip}
-          onEditClip={this.onEditClip}
-          onClipChange={this.onClipChange}
-        />
-      </Container>
+      <Modal>
+        {({ openModal }) => (
+          <Container>
+            <VideoContainer>
+              <Video
+                key={videoSrc}
+                controls
+                autoPlay={autoPlay}
+                onPlay={this.onVideoPlay}
+                onDurationChange={this.onVideoDurationChange}
+                onTimeUpdate={this.onVideoTimeUpdate}
+                onEnded={this.onVideoEnded}
+              >
+                <source src={videoSrc} />
+                Sorry, your browser doesn't support embedded videos.
+              </Video>
+              {loading && (
+                <LoadingOverlay>
+                  <FontAwesomeIcon
+                    icon={faSpinner}
+                    color="#fff"
+                    pulse
+                    size="3x"
+                  />
+                  <p>The next clip will start soon</p>
+                </LoadingOverlay>
+              )}
+            </VideoContainer>
+            <PlaylistContainer>
+              <PlaylistHeader>
+                <PlaylistHeaderBar>
+                  <PlaylistTitle>CLIPS</PlaylistTitle>
+                  <Button
+                    onClick={() =>
+                      openModal('FILTER_CLIPS', {
+                        tags,
+                        activeTags: filters,
+                        onApplyFilters: this.onApplyFilters
+                      })
+                    }
+                  >
+                    <FontAwesomeIcon
+                      icon={faFilter}
+                      color={isFiltering ? '#1d1f24' : '#ff565c'}
+                    />
+                  </Button>
+                  <Button
+                    onClick={() =>
+                      openModal('NEW_CLIP', {
+                        onSaveClip: this.onAddClip,
+                        maxDuration: videoDuration
+                      })
+                    }
+                  >
+                    <FontAwesomeIcon icon={faPlus} color="#1d1f24" />
+                  </Button>
+                </PlaylistHeaderBar>
+                <PlaylistAutoplay>
+                  <label>
+                    <span>Autoplay</span>
+                    <Switch
+                      uncheckedIcon={false}
+                      checkedIcon={false}
+                      onChange={this.onAutoPlayChange}
+                      checked={autoPlay}
+                      offColor="#bbbbbd"
+                      onColor="#ffaaad"
+                      onHandleColor="#ff565c"
+                      handleDiameter={18}
+                      height={14}
+                      width={38}
+                      boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                      activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                    />
+                  </label>
+                </PlaylistAutoplay>
+              </PlaylistHeader>
+              <Playlist
+                originalVideo={ORIGINAL_VIDEO}
+                videoDuration={videoDuration}
+                clips={filteredClips}
+                activeClip={activeClip}
+                onAddClip={this.onAddClip}
+                onRemoveClip={this.onRemoveClip}
+                onEditClip={(index, clip) =>
+                  openModal('NEW_CLIP', {
+                    onSaveClip: this.onEditClip,
+                    maxDuration: videoDuration,
+                    clipIndex: index,
+                    clip
+                  })
+                }
+                onClipChange={this.onClipChange}
+              />
+            </PlaylistContainer>
+          </Container>
+        )}
+      </Modal>
     )
   }
 }

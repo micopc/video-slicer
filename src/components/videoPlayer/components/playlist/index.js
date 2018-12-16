@@ -1,27 +1,21 @@
 import React from 'react'
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
-import {
-  faPlay,
-  faPencilAlt,
-  faTrashAlt,
-  faPlus,
-  faFilter
-} from '@fortawesome/free-solid-svg-icons'
+import { faPencilAlt, faTrashAlt } from '@fortawesome/free-solid-svg-icons'
 import {
   Container,
-  Header,
   ClipList,
   ClipItem,
+  ClipLink,
   ClipItemWrapper,
   ClipInfo,
   ClipName,
   ClipTime,
+  ClipTags,
   ClipActions,
   Button,
   NowPlaying,
   NoClipsMessage
 } from './style'
-import NewClipModal from '../../../newClipModal'
 import { formatTimeMarks } from '../../../../utils'
 
 const Playlist = ({
@@ -29,7 +23,6 @@ const Playlist = ({
   videoDuration,
   clips,
   activeClip,
-  onAddClip,
   onRemoveClip,
   onEditClip,
   onClipChange
@@ -38,42 +31,27 @@ const Playlist = ({
 
   return (
     <Container>
-      <Header>
-        <div>Clips</div>
-        <div>
-          <Button>
-            <FontAwesomeIcon icon={faFilter} color="#1d1f24" />
-          </Button>
-          <NewClipModal onSaveClip={onAddClip} maxDuration={videoDuration}>
-            {({ openModal }) => (
-              <Button onClick={() => openModal()}>
-                <FontAwesomeIcon icon={faPlus} color="#1d1f24" />
-              </Button>
-            )}
-          </NewClipModal>
-        </div>
-      </Header>
       <ClipList>
         <ClipItem active={isOriginalVideoActive}>
           {isOriginalVideoActive && <NowPlaying>NOW PLAYING</NowPlaying>}
           <ClipItemWrapper>
-            <ClipInfo>
-              <ClipName active={isOriginalVideoActive}>
-                {originalVideo.name}
-              </ClipName>
-              <ClipTime active={isOriginalVideoActive}>
-                {formatTimeMarks(originalVideo.start)} -{' '}
-                {formatTimeMarks(videoDuration)}
-              </ClipTime>
-            </ClipInfo>
-            <ClipActions>
-              <Button type="button" onClick={() => onClipChange(originalVideo)}>
-                <FontAwesomeIcon
-                  icon={faPlay}
-                  color={isOriginalVideoActive ? '#fff' : '#1d1f24'}
-                />
-              </Button>
-            </ClipActions>
+            <ClipLink
+              onClick={e => {
+                e.preventDefault()
+                onClipChange(originalVideo)
+              }}
+              href="#"
+            >
+              <ClipInfo>
+                <ClipName active={isOriginalVideoActive}>
+                  {originalVideo.name}
+                </ClipName>
+                <ClipTime active={isOriginalVideoActive}>
+                  {formatTimeMarks(originalVideo.start)} -{' '}
+                  {formatTimeMarks(videoDuration)}
+                </ClipTime>
+              </ClipInfo>
+            </ClipLink>
           </ClipItemWrapper>
         </ClipItem>
         {clips.map((clip, index) => {
@@ -83,32 +61,31 @@ const Playlist = ({
             <ClipItem key={clip.id} active={active}>
               {active && <NowPlaying>NOW PLAYING</NowPlaying>}
               <ClipItemWrapper>
-                <ClipInfo>
-                  <ClipName active={active}>{clip.name}</ClipName>
-                  <ClipTime active={active}>
-                    {formatTimeMarks(clip.start)} - {formatTimeMarks(clip.end)}
-                  </ClipTime>
-                </ClipInfo>
+                <ClipLink
+                  onClick={e => {
+                    e.preventDefault()
+                    onClipChange(clip)
+                  }}
+                  href="#"
+                >
+                  <ClipInfo>
+                    <ClipName active={active}>{clip.name}</ClipName>
+                    <ClipTime active={active}>
+                      {formatTimeMarks(clip.start)} -{' '}
+                      {formatTimeMarks(clip.end)}
+                    </ClipTime>
+                    <ClipTags active={active}>
+                      {clip.tags && clip.tags.join(', ')}
+                    </ClipTags>
+                  </ClipInfo>
+                </ClipLink>
                 <ClipActions>
-                  <Button type="button" onClick={() => onClipChange(clip)}>
+                  <Button type="button" onClick={() => onEditClip(index, clip)}>
                     <FontAwesomeIcon
-                      icon={faPlay}
+                      icon={faPencilAlt}
                       color={active ? '#fff' : '#1d1f24'}
                     />
                   </Button>
-                  <NewClipModal
-                    onSaveClip={savedClip => onEditClip(index, savedClip)}
-                    maxDuration={videoDuration}
-                  >
-                    {({ openModal }) => (
-                      <Button type="button" onClick={() => openModal(clip)}>
-                        <FontAwesomeIcon
-                          icon={faPencilAlt}
-                          color={active ? '#fff' : '#1d1f24'}
-                        />
-                      </Button>
-                    )}
-                  </NewClipModal>
                   <Button type="button" onClick={() => onRemoveClip(index)}>
                     <FontAwesomeIcon
                       icon={faTrashAlt}

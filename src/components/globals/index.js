@@ -1,7 +1,7 @@
 import styled, { createGlobalStyle } from 'styled-components'
 
 export const PageWrapper = styled.div`
-  padding: 60px;
+  padding: 20px;
 `
 
 export const GlobalStyles = createGlobalStyle`
