@@ -19,6 +19,7 @@ import {
 import { formatTimeMarks } from '../../../../utils'
 
 const Playlist = ({
+  canEdit,
   originalVideo,
   videoDuration,
   clips,
@@ -79,20 +80,25 @@ const Playlist = ({
                     </ClipTags>
                   </ClipInfo>
                 </ClipLink>
-                <ClipActions>
-                  <Button type="button" onClick={() => onEditClip(index, clip)}>
-                    <FontAwesomeIcon
-                      icon={faPencilAlt}
-                      color={active ? '#fff' : '#1d1f24'}
-                    />
-                  </Button>
-                  <Button type="button" onClick={() => onRemoveClip(index)}>
-                    <FontAwesomeIcon
-                      icon={faTrashAlt}
-                      color={active ? '#fff' : '#1d1f24'}
-                    />
-                  </Button>
-                </ClipActions>
+                {canEdit && (
+                  <ClipActions>
+                    <Button
+                      type="button"
+                      onClick={() => onEditClip(index, clip)}
+                    >
+                      <FontAwesomeIcon
+                        icon={faPencilAlt}
+                        color={active ? '#fff' : '#1d1f24'}
+                      />
+                    </Button>
+                    <Button type="button" onClick={() => onRemoveClip(index)}>
+                      <FontAwesomeIcon
+                        icon={faTrashAlt}
+                        color={active ? '#fff' : '#1d1f24'}
+                      />
+                    </Button>
+                  </ClipActions>
+                )}
               </ClipItemWrapper>
             </ClipItem>
           )

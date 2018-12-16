@@ -274,6 +274,7 @@ class VideoPlayer extends React.Component {
       autoPlay,
       filters
     } = this.state
+    const { canEdit } = this.props
 
     const videoSrc = this.getVideoSrc()
 
@@ -358,16 +359,22 @@ class VideoPlayer extends React.Component {
                       size="2x"
                     />
                   </Button>
-                  <Button
-                    onClick={() =>
-                      openModal('NEW_CLIP', {
-                        onSaveClip: this.onAddClip,
-                        maxDuration: videoDuration
-                      })
-                    }
-                  >
-                    <FontAwesomeIcon icon={faPlus} color="#1d1f24" size="2x" />
-                  </Button>
+                  {canEdit && (
+                    <Button
+                      onClick={() =>
+                        openModal('NEW_CLIP', {
+                          onSaveClip: this.onAddClip,
+                          maxDuration: videoDuration
+                        })
+                      }
+                    >
+                      <FontAwesomeIcon
+                        icon={faPlus}
+                        color="#1d1f24"
+                        size="2x"
+                      />
+                    </Button>
+                  )}
                 </PlaylistHeaderBar>
                 <PlaylistAutoplay>
                   <label>
@@ -390,6 +397,7 @@ class VideoPlayer extends React.Component {
                 </PlaylistAutoplay>
               </PlaylistHeader>
               <Playlist
+                canEdit={canEdit}
                 originalVideo={ORIGINAL_VIDEO}
                 videoDuration={videoDuration}
                 clips={filteredClips}
