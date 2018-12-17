@@ -9,7 +9,7 @@ import { generateRandomID } from '../../../utils'
 
 class NewClipModal extends React.Component {
   state = {
-    clipId: null,
+    clipId: this.props.clip ? this.props.clip.id : null,
     clipName: this.props.clip ? this.props.clip.name : '',
     clipStartTime: this.props.clip ? this.props.clip.start : '',
     clipStartTimeError: false,
@@ -93,6 +93,7 @@ class NewClipModal extends React.Component {
       tags: clipTags
     }
 
+    // If editing, then send the clip index
     if (clipId) {
       this.props.onSaveClip(this.props.clipIndex, clip)
     } else {
@@ -150,7 +151,7 @@ class NewClipModal extends React.Component {
               onChange={this.handleClipNameChange}
             />
             <Input
-              label="Start time"
+              label="Start time (seconds)"
               value={clipStartTime}
               onChange={this.handleClipStartTimeChange}
             />
@@ -160,7 +161,7 @@ class NewClipModal extends React.Component {
               </Error>
             )}
             <Input
-              label="End time"
+              label="End time (seconds)"
               value={clipEndTime}
               onChange={this.handleClipEndTimeChange}
             />
@@ -170,7 +171,6 @@ class NewClipModal extends React.Component {
                 than {maxDuration}
               </Error>
             )}
-            {addClipError && <Error>Please ensure all fields are valid</Error>}
             <CreatableSelect
               label="Tags"
               isMulti
@@ -185,6 +185,7 @@ class NewClipModal extends React.Component {
               onChange={this.handleClipTagsChange}
               onCreateOption={this.onClipTagCreate}
             />
+            {addClipError && <Error>Please ensure all fields are valid</Error>}
             <Button
               primary
               type="submit"

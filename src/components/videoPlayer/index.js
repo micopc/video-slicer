@@ -191,43 +191,51 @@ class VideoPlayer extends React.Component {
   }
 
   getPrevClip = () => {
-    const { activeClip, clips } = this.state
+    const { activeClip } = this.state
 
-    if (clips.length === 0) {
+    const filteredClips = this.getFilteredClips()
+
+    if (filteredClips.length === 0) {
       return ORIGINAL_VIDEO
     }
 
-    const activeIndex = clips.findIndex(clip => clip.id === activeClip.id)
+    const activeIndex = filteredClips.findIndex(
+      clip => clip.id === activeClip.id
+    )
 
     if (activeIndex === -1) {
-      return clips[clips.length - 1]
+      return filteredClips[filteredClips.length - 1]
     }
 
     if (activeIndex === 0) {
       return ORIGINAL_VIDEO
     }
 
-    return clips[activeIndex - 1]
+    return filteredClips[activeIndex - 1]
   }
 
   getNextClip = () => {
-    const { activeClip, clips } = this.state
+    const { activeClip } = this.state
 
-    if (clips.length === 0) {
+    const filteredClips = this.getFilteredClips()
+
+    if (filteredClips.length === 0) {
       return ORIGINAL_VIDEO
     }
 
-    const activeIndex = clips.findIndex(clip => clip.id === activeClip.id)
+    const activeIndex = filteredClips.findIndex(
+      clip => clip.id === activeClip.id
+    )
 
     if (activeIndex === -1) {
-      return clips[0]
+      return filteredClips[0]
     }
 
-    if (activeIndex === clips.length - 1) {
+    if (activeIndex === filteredClips.length - 1) {
       return ORIGINAL_VIDEO
     }
 
-    return clips[activeIndex + 1]
+    return filteredClips[activeIndex + 1]
   }
 
   playNextClip = () => {
@@ -272,33 +280,27 @@ class VideoPlayer extends React.Component {
     return Array.from(tags)
   }
 
+  getFilteredClips = () => {
+    const { filters, clips } = this.state
+
+    if (filters.length === 0) {
+      return clips
+    }
+
+    return clips.filter(clip => {
+      return filters.some(
+        filter => clip.tags && clip.tags.some(tag => tag === filter)
+      )
+    })
+  }
+
   render() {
-    const {
-      clips,
-      activeClip,
-      videoDuration,
-      loading,
-      autoPlay,
-      filters
-    } = this.state
+    const { activeClip, videoDuration, loading, autoPlay, filters } = this.state
     const { canEdit } = this.props
 
     const videoSrc = this.getVideoSrc()
-
     const tags = this.getAllVideoTags()
-
-    const isFiltering = filters.length === 0
-
-    let filteredClips = []
-    if (isFiltering) {
-      filteredClips = clips
-    } else {
-      filteredClips = clips.filter(clip => {
-        return filters.some(
-          filter => clip.tags && clip.tags.some(tag => tag === filter)
-        )
-      })
-    }
+    const filteredClips = this.getFilteredClips()
 
     return (
       <Modal>
@@ -362,7 +364,7 @@ class VideoPlayer extends React.Component {
                   >
                     <FontAwesomeIcon
                       icon={faFilter}
-                      color={isFiltering ? '#1d1f24' : '#ff565c'}
+                      color={filters.length === 0 ? '#1d1f24' : '#ff565c'}
                       size="2x"
                     />
                   </Button>
