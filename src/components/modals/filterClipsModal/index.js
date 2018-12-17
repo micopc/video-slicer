@@ -85,7 +85,7 @@ class FilterClipsModal extends React.Component {
                         this.handleTagFilterChange(index, e.target.checked)
                       }
                     />
-                    {tag.name}
+                    <span>{tag.name}</span>
                   </label>
                 </TagItem>
               ))}

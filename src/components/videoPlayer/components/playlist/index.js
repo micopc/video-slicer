@@ -103,7 +103,7 @@ const Playlist = ({
             </ClipItem>
           )
         })}
-        {clips.length === 0 && (
+        {canEdit && clips.length === 0 && (
           <NoClipsMessage>
             YOU CAN ADD CLIPS BY CLICKING THE PLUS ICON (+) ON THE TOP OF THIS
             SECTION

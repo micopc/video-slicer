@@ -79,7 +79,7 @@ export const PlaylistTitle = styled.h2`
   margin: 0;
 `
 
-export const LoadingOverlay = styled.div`
+export const VideoOverlay = styled.div`
   position: absolute;
   top: 0;
   left: 0;

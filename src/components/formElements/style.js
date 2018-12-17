@@ -35,7 +35,8 @@ export const StyledInput = styled.input`
 export const selectStyles = {
   control: base => ({
     ...base,
-    border: '1px solid #e9e9e9'
+    border: '1px solid #e9e9e9',
+    padding: '3px'
   })
 }
 

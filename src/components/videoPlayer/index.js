@@ -20,17 +20,19 @@ import {
   PlaylistAutoplay,
   PlaylistTitle,
   Button,
-  LoadingOverlay
+  VideoOverlay
 } from './style'
 import Modal from '../modals/modalRoot'
 import Playlist from './components/playlist'
 
+// Original Video data
 const ORIGINAL_VIDEO = {
   id: 'ORIGINAL_VIDEO',
   name: 'Original',
   start: 0
 }
 
+// How much time the app will wait until it okays the next clip
 const AUTOPLAY_DELAY = 3000
 
 class VideoPlayer extends React.Component {
@@ -43,7 +45,11 @@ class VideoPlayer extends React.Component {
     filters: []
   }
 
+  // Flag that prevent the video update event from being
+  // called multiple times and trigger multiple autoplay timers
   videoEndReached = false
+
+  // Flag that holds the autoplay timeout so it can be stopped on demand
   autoplayTimer = null
 
   componentDidMount() {
@@ -102,6 +108,7 @@ class VideoPlayer extends React.Component {
     // If the active video is deleted, then make the original video the active
     if (clips[index].id === activeClip.id) {
       newState.activeClip = ORIGINAL_VIDEO
+      newState.loading = false
     }
 
     this.setState(newState)
@@ -130,7 +137,7 @@ class VideoPlayer extends React.Component {
   }
 
   onClipChange = activeClip => {
-    this.setState({ activeClip })
+    this.setState({ activeClip, loading: false })
   }
 
   onVideoDurationChange = e => {
@@ -171,7 +178,7 @@ class VideoPlayer extends React.Component {
     // If the next video is currently being loaded, stop it
     this.autoplayTimer && clearTimeout(this.autoplayTimer)
 
-    this.setState({ activeClip: clip, loading: false })
+    this.onClipChange(clip)
   }
 
   onPrevClip = () => {
@@ -180,7 +187,7 @@ class VideoPlayer extends React.Component {
     // If the next video is currently being loaded, stop it
     this.autoplayTimer && clearTimeout(this.autoplayTimer)
 
-    this.setState({ activeClip: clip, loading: false })
+    this.onClipChange(clip)
   }
 
   getPrevClip = () => {
@@ -228,7 +235,7 @@ class VideoPlayer extends React.Component {
       this.autoplayTimer = setTimeout(() => {
         const clip = this.getNextClip()
 
-        this.setState({ loading: false, activeClip: clip })
+        this.onClipChange(clip)
       }, AUTOPLAY_DELAY)
     })
   }
@@ -329,15 +336,15 @@ class VideoPlayer extends React.Component {
                 Sorry, your browser doesn't support embedded videos.
               </Video>
               {loading && (
-                <LoadingOverlay>
+                <VideoOverlay>
                   <FontAwesomeIcon
                     icon={faSpinner}
                     color="#fff"
                     pulse
-                    size="3x"
+                    size="2x"
                   />
                   <p>The next clip will start soon</p>
-                </LoadingOverlay>
+                </VideoOverlay>
               )}
             </VideoContainer>
             <PlaylistContainer>

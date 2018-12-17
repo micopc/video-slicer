@@ -12,6 +12,10 @@ export const TagsList = styled.ul`
 
 export const TagItem = styled.li`
   width: 50%;
+
+  & span {
+    margin-left: 5px;
+  }
 `
 
 export const Actions = styled.div`
